@@ -1,0 +1,55 @@
+# fly.toml — عدّل اسم التطبيق ليطابق اسمك على Fly.io
+app = "infinityclothes"
+primary_region = "cdg"         # أقرب region لمصر: cdg (باريس) أو jnb (جوهانسبرغ)
+
+[build]
+  dockerfile = "Dockerfile"
+
+# ─────────────────────────────
+# متغيرات البيئة غير السرية
+# ─────────────────────────────
+[env]
+  PORT             = "8080"
+  BACKGROUND_FOLDER = "/data/backgrounds"
+  VIDEO_BASE_FOLDER = "/data/products"
+
+# ─────────────────────────────
+# إعدادات HTTP
+# ─────────────────────────────
+[http_service]
+  internal_port       = 8080
+  force_https         = true
+  auto_stop_machines  = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 50
+    soft_limit = 25
+
+# ─────────────────────────────
+# فحص الصحة
+# ─────────────────────────────
+[[http_service.checks]]
+  grace_period  = "10s"
+  interval      = "30s"
+  method        = "GET"
+  path          = "/"
+  timeout       = "5s"
+
+# ─────────────────────────────
+# Fly Volume — للفيديوهات والخلفيات
+# (اختياري — أنشئه بـ: fly volumes create media_data --size 10)
+# ─────────────────────────────
+# [[mounts]]
+#   source      = "media_data"
+#   destination = "/data"
+
+# ─────────────────────────────
+# موارد الـ VM
+# ─────────────────────────────
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
